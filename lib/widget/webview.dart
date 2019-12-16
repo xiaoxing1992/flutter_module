@@ -3,12 +3,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 
+const CATCH_URLS = ['m.ctrip.com/', 'm.ctrip.com/html5/', 'm.ctrip.com/html5'];
+
 class WebView extends StatefulWidget {
   final String icon;
   final String title;
   final String url;
   final String statusBarColor;
   final bool hideAppBar;
+  final bool backForbid;
 
   const WebView(
       {Key key,
@@ -16,7 +19,8 @@ class WebView extends StatefulWidget {
       this.title,
       this.url,
       this.statusBarColor,
-      this.hideAppBar})
+      this.hideAppBar,
+      this.backForbid = false})
       : super(key: key);
 
   @override
@@ -28,6 +32,7 @@ class _WebViewState extends State<WebView> {
   StreamSubscription<String> _onUrlChanged;
   StreamSubscription<WebViewStateChanged> _onStateChanged;
   StreamSubscription<WebViewHttpError> _onHttpError;
+  bool exiting = false; //是否退出当前网页
 
   @override
   void initState() {
@@ -41,7 +46,14 @@ class _WebViewState extends State<WebView> {
           // TODO: Handle this case.
           break;
         case WebViewState.startLoad:
-          // TODO: Handle this case.
+          if (_isToMain(state.url) && !exiting) {
+            if (widget.backForbid) {
+              flutterWebviewPlugin.launch(widget.url);
+            } else {
+              Navigator.pop(context);
+              exiting = true; //防止重复返回
+            }
+          }
           break;
         case WebViewState.finishLoad:
           // TODO: Handle this case.
@@ -56,6 +68,16 @@ class _WebViewState extends State<WebView> {
         flutterWebviewPlugin.onHttpError.listen((WebViewHttpError error) {
       print(error.toString());
     });
+  }
+
+  _isToMain(String url) {
+    bool contain = false;
+    for (final value in CATCH_URLS) {
+      if (url?.endsWith(value) ?? false) {
+        contain = true;
+      }
+    }
+    return contain;
   }
 
   @override
@@ -82,7 +104,8 @@ class _WebViewState extends State<WebView> {
     return Scaffold(
       body: Column(
         children: <Widget>[
-          _appBar(Color(int.parse('0xff' + statusBarColorStr)), backButtonColor),
+          _appBar(
+              Color(int.parse('0xff' + statusBarColorStr)), backButtonColor),
           Expanded(
               child: WebviewScaffold(
             url: widget.url,

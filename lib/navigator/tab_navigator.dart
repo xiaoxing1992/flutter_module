@@ -33,9 +33,9 @@ class _TabNavigatorState extends State<TabNavigator> {
       ),
       bottomNavigationBar: BottomNavigationBar(
           currentIndex: _currentIndex,
-          type: BottomNavigationBarType.fixed,
+          type: BottomNavigationBarType.shifting,
           onTap: (index) {
-            _controller.jumpToPage(index);
+            _controller.animateToPage(index,duration: new Duration(seconds: 2),curve: new ElasticOutCurve(0.8));
             setState(() {
               _currentIndex = index;
             });

@@ -15,7 +15,7 @@ class HomePage extends StatefulWidget {
   }
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
   final PageController _controller = PageController(initialPage: 0);
   List _imageUrls = [
     'http://pic44.nipic.com/20140723/18505720_094503373000_2.jpg',
@@ -115,4 +115,8 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
 }
